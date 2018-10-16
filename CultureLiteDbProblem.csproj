@@ -8,7 +8,6 @@
   <ItemGroup>
     <None Remove="AddItem.txt" />
     <None Remove="Bug66245_min.db" />
-    <None Remove="output.json" />
   </ItemGroup>
 
   <ItemGroup>
@@ -20,9 +19,6 @@
   <ItemGroup>
     <Content Include="Bug66245_min.db">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="output.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
 

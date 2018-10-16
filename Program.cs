@@ -14,7 +14,7 @@ namespace CultureLiteDbProblem
     {
         static void Main(string[] args)
         {
-            Thread.CurrentThread.CurrentCulture  =new CultureInfo("fi"); //works
+            Thread.CurrentThread.CurrentCulture = new CultureInfo("fi"); 
 
             Console.WriteLine($"Running with {Thread.CurrentThread.CurrentCulture.Name} culture");
 
@@ -28,7 +28,7 @@ namespace CultureLiteDbProblem
 
             int itemCount = 0;
             
-            Console.WriteLine($"Open db and add items from txt file");
+            Console.WriteLine($"Create/Open db and add items from txt file");
             using (var repo = new LiteRepository($"Filename = {dbName}.db;Journal = false;async=true;Cache Size=0;Flush= true;Timeout=0:10:00;mode=Exclusive;"))
             {
                 using (var reader = new System.IO.StreamReader(file))
@@ -37,13 +37,11 @@ namespace CultureLiteDbProblem
                     while ((line = reader.ReadLine()) != null)
                     {
 
-                        var splits = line.Split(";");
-                        listOfIds.Add(splits[0]);
+                        var id = line.Trim();
+                        listOfIds.Add(id);
                         var wrapper = new MongoDbDataWrapper<string>()
                         {
-                            Id = splits[0],
-                            m = string.Empty,
-                            d = string.Join(string.Empty, splits.Skip(1))
+                            Id = id
                         };
 
                         var wrappedData = BsonMapper.Global.ToDocument(wrapper);
@@ -58,7 +56,8 @@ namespace CultureLiteDbProblem
             Console.WriteLine($"Item Count { itemCount}");
             Thread.CurrentThread.CurrentCulture = new CultureInfo("en-gb");
             Console.WriteLine($"Switch to with { Thread.CurrentThread.CurrentCulture.Name} culture");
-
+            
+            Console.WriteLine($"Open db");
             using (var repo = new LiteRepository($"Filename = {dbName}.db;Journal = false;async=true;Cache Size=0;Flush= true;Timeout=0:10:00;mode=Exclusive;"))
             {
                 
@@ -95,21 +94,10 @@ namespace CultureLiteDbProblem
 #pragma warning disable IDE1006 // Naming Styles
 
         /// <summary>
-        /// Gets and sets the data object
-        /// </summary>
-        public T d { get; set; }
-
-
-        /// <summary>
         /// Gets and sets the id of the data object (This is a primary key in MongoDB)
         /// </summary>
         public string Id { get; set; }
-
-
-        /// <summary>
-        /// Gets and sets the if of the meta data node that is associated with the data object
-        /// </summary>
-        public string m { get; set; }
+        
 
 #pragma warning restore IDE1006 // Naming Styles
     }
