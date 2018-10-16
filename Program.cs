@@ -2,7 +2,10 @@
 
 namespace CultureLiteDbProblem
 {
+    using System.Collections.Generic;
     using System.Globalization;
+    using System.IO;
+    using System.Linq;
     using System.Threading;
 
     using LiteDB;
@@ -11,55 +14,608 @@ namespace CultureLiteDbProblem
     {
         static void Main(string[] args)
         {
-           var cultureInfo = new CultureInfo("en-gb"); //breaks
-             //var cultureInfo =new CultureInfo("fi"); //works
+            var cultureInfo = new CultureInfo("fi"); //breaks
+            //var cultureInfo =new CultureInfo("fi"); //works
 
             Thread.CurrentThread.CurrentCulture = cultureInfo;
 
             Console.WriteLine($"Running with {cultureInfo.Name} culture");
 
-            using (var repo = new LiteRepository($"Filename = Bug66245_min.db;Journal = false;async=true;Cache Size=0;Flush= true;Timeout=0:10:00;mode=Exclusive;"))
+            var file = "AddItem.txt";
+
+
+            var dbName = Guid.NewGuid().ToString();
+
+            var listOfIds = new List<string>()
+                                {
+                                   "r6p1BL.38QNdD",
+"r6p1BN.y2RTH",
+"r6p1BP.3z7wZ7",
+"r6p1Et.1zbbVb",
+"r6p1Gh.qLJN8",
+"r6p3b7.3LwvQd",
+"r6p3cI.2NGKYR",
+"r6p6KY.4qopvS",
+"r6p6KZ.ZW9JW",
+"r6p6Pe.2D9ZYS",
+"r6p6Pf.3f0NDq",
+"r6p6Sn.21qSdI",
+"r6p6Sn.3DwHGa",
+"r6p6St.3gRU5t",
+"r6p6Su.epIJR" ,
+"r6p71q.347R9J",
+"r6p71r.1jRLxL",
+"r6p74l.2n4zg",
+"r6p74l.4vKa6T",
+"r6p7Cr.mWoTZ",
+"r6p7Cs.1wInUq",
+"r6p7Do.4DXOMD",
+"r6p7Dp.mmE1g",
+"r6p7F5.1cdHfd",
+"r6p7F6.3Y5oSe",
+"r6p7GW.2jJgDR",
+"r6p7GW.3dpoEQ",
+"r6p7ix.2s5trx",
+"r6p7ix.2wipFU",
+"r6p7Kn.3nUlA7",
+"r6p7Kn.nqNbJ",
+"r6p7kS.2Sqm5b",
+"r6p7Ks.2VJHwx",
+"r6p7Kt.1Zej4y",
+"r6p7kT.24Uxa2",
+"r6p7M1.4lZMKL",
+"r6p7M2.1ODuqT",
+"r6p7nD.2eiyhF",
+"r6p7nE.49PzA7",
+"r6p7U3.41Da4Z",
+"r6p7U4.49bn1G",
+"r6p7uQ.4w25vJ",
+"r6p7uR.2Bnz9m",
+"r6p7w0.A3m00" ,
+"r6p7w1.BqX44" ,
+"r6p7XB.4rRkOx",
+"r6p7XC.XDsZO" ,
+"r6p7yL.3KmCuL",
+"r6p7yL.3Usgdz",
+"r6p7yS.3hwVFE",
+"r6p7yS.3NLds8",
+"r6p85h.3Xgw1G",
+"r6p85i.3qdVsd",
+"r6p8tE.2zaMXj",
+"r6p8tF.3w4vlb",
+"r6p8ts.4l3ICF",
+"r6p8ts.AO3nj" ,
+"r6p8wp.25O4M0",
+"r6p8wp.2bWgKn",
+"r6p8ww.4ouSjq",
+"r6p8wx.4fB8bm",
+"r6p8xl.1nWe7Q",
+"r6p8xm.2ErZjR",
+"r6p8Yh.2i7k17",
+"r6p8Yi.1M9Am1",
+"r6p91e.3WMT7w",
+"r6p91f.2bsiyU",
+"r6p93M.2Gs19h",
+"r6p93M.3tANPs",
+"r6p94F.1f4jKI",
+"r6p94F.31gjQS",
+"r6p9c8.1Xh8jw",
+"r6p9c9.2q6XO2",
+"r6p9Cy.3rqkGv",
+"r6p9Cz.1tzslT",
+"r6p9Fa.3lFxDy",
+"r6p9Fb.2QiMAS",
+"r6p9fC.tpf6X" ,
+"r6p9fD.4ivkSq",
+"r6p9Jw.2hWpU6",
+"r6p9Jx.2oQGTe",
+"r6p9kE.1lny60",
+"r6p9kE.2jNzu2",
+"r6p9OW.2ko8Tq",
+"r6p9OX.2HhF7A",
+"r6p9p5.FP1JE" ,
+"r6p9p6.279oNs",
+"r6p9RM.4pS5AB",
+"r6p9RN.3SRzlF",
+"r6p9WU.8SSSe" ,
+"r6p9WV.d8FIq" ,
+"r6p9xC.1xrjLm",
+"r6p9xC.3EEWNh",
+"r6p9xw.3THBs7",
+"r6p9xw.HTxmF" ,
+"r6pa0s.UaqJC" ,
+"r6pa0t.kcrfa" ,
+"r6paDT.hTI7Z" ,
+"r6paDT.N9oJ4" ,
+"r6pagD.40T2zQ",
+"r6pagE.2tevg5",
+"r6pAGL.4k0LOl",
+"r6pAGM.2Wkjsm",
+"r6pAHC.w3sdw" ,
+"r6pAHD.2ZTOBn",
+"r6pahn.1KDZEH",
+"r6paho.4gwlGh",
+"r6pAI2.3lXszL",
+"r6pAI3.4uQ7PR",
+"r6paJh.4aCf0M",
+"r6paJi.3C2OXc",
+"r6pakd.2xqwi1",
+"r6pake.EGrz8" ,
+"r6pAkn.1ZV7II",
+"r6pAko.4bjLss",
+"r6pAlE.2JPLpZ",
+"r6pAlE.2sOfVR",
+"r6panc.41QPvW",
+"r6pand.3Lf1yC",
+"r6pAne.2OtCeV",
+"r6pAnf.4easef",
+"r6panr.2EIzK4",
+"r6pans.2p9vi1",
+"r6paow.r0t0M" ,
+"r6paox.1INYAt",
+"r6paPM.t26Qg" ,
+"r6paPN.4qZBK4",
+"r6paqU.3CbCZm",
+"r6paqU.48WiSL",
+"r6parc.3yGSF2",
+"r6pard.1kuB02",
+"r6pArd.1Uj5je",
+"r6pAre.4c7TFd",
+"r6parj.3LZyzS",
+"r6parj.4mQxY" ,
+"r6paSA.24TNR3",
+"r6pAso.2Rh0y0",
+"r6pAsp.4oG8i4",
+"r6paSz.6uVlP" ,
+"r6paT3.23Tc9r",
+"r6paT4.4pHx3Z",
+"r6pAt5.4gBM0Y",
+"r6pAt6.2KRdvg",
+"r6pAtT.2TjxOv",
+"r6pAtT.3W2TDn",
+"r6paw6.13iLNH",
+"r6paw7.27fRtL",
+"r6pax9.1Kj7nL",
+"r6paxa.4lLc6t",
+"r6paXU.2vI8FP",
+"r6paXV.obHfR" ,
+"r6pb2N.1nv2oa",
+"r6pb2O.2mA3Fk",
+"r6pb8F.3hKJ9f",
+"r6pb8F.7SL3m" ,
+"r6pb8S.4lqxEf",
+"r6pb8T.1adTJF",
+"r6pbc0.2lsnM7",
+"r6pbc0.2x9f5u",
+"r6pbc5.qU3M1" ,
+"r6pbc6.4ud13i",
+"r6pblA.4jVc6v",
+"r6pblB.1AK0bX",
+"r6pbqi.H04AO" ,
+"r6pbqk.qcOgi" ,
+"r6pbR0.2tMF28",
+"r6pbR1.3Z4aKY",
+"r6pbTC.47mjqT",
+"r6pbTD.29xP01",
+"r6pbTL.1ethaG",
+"r6pbTL.3dFiv4",
+"r6pbTT.3ENCXm",
+"r6pbTU.1EFohy",
+"r6pbU2.AZMkB" ,
+"r6pbU3.3zwkue",
+"r6pbv5.183tiK",
+"r6pbv6.1WOOzo",
+"r6pc1A.jky3a" ,
+"r6pc1B.1qB23i",
+"r6pc1M.3ZISZZ",
+"r6pc1N.17gzno",
+"r6pc3A.2tpydA",
+"r6pc3C.1MXjUj",
+"r6pc9f.1GmU8z",
+"r6pc9g.1zxK7y",
+"r6pcaq.20bCEh",
+"r6pcar.2g1Jij",
+"r6pcb2.LrkxT" ,
+"r6pcb3.24BfLY",
+"r6pcdC.2RDRSN",
+"r6pcdD.o2PAj" ,
+"r6pcEN.2irJz3",
+"r6pcEN.VZ50T" ,
+"r6pcEZ.2il0Z9",
+"r6pcF0.2lZm7R",
+"r6pcii.1zgAsv",
+"r6pcij.4lkZG8",
+"r6pcIm.321Qpx",
+"r6pcIn.41S4IN",
+"r6pcIt.2xFaQc",
+"r6pcIt.W15Gh" ,
+"r6pcll.20YWd8",
+"r6pclm.3qaeRJ",
+"r6pcLw.2WeQXN",
+"r6pcLv.4CyFii",
+"r6pcOA.1wCLUn",
+"r6pcOG.WJfzH" ,
+"r6pcOH.22Phbd",
+"r6pcOX.13oday",
+"r6pcOY.3Qd126",
+"r6pcOz.1qNZKG",
+"r6pcty.48iYe5",
+"r6pctz.idjQz" ,
+"r6pcVt.1FgeUe",
+"r6pcVt.1RFapt",
+"r6pcVz.3q8hEX",
+"r6pcVz.4mzBUl",
+"r6pcXG.1NDfe4",
+"r6pcXH.1F1aey",
+"r6pcXN.1EEqIY",
+"r6pcXO.3loUT9",
+"r6pcXv.1Yr5D4",
+"r6pcXw.DDqgV" ,
+"r6pd7v.3xqJEk",
+"r6pd7w.XMZvZ" ,
+"r6pd9p.406cIF",
+"r6pd9q.2GhdE" ,
+"r6pdCW.2kbVnh",
+"r6pdCV.jkjQL" ,
+"r6pdD5.3izAKD",
+"r6pdD5.3PXXJl",
+"r6pdeM.4yDpDL",
+"r6pdeN.33Yca2",
+"r6pdeT.4czd5C",
+"r6pdeU.3lWfUp",
+"r6pdf0.2Z8i47",
+"r6pdf1.43cpME",
+"r6pdFg.1oxTT3",
+"r6pdFg.dPgET" ,
+"r6pdfN.43XLD1",
+"r6pdfO.3XU97S",
+"r6pdGW.222gtT",
+"r6pdGX.3WRmp6",
+"r6pdH3.vgJzk" ,
+"r6pdH4.3qEbIQ",
+"r6pdit.1XdPAV",
+"r6pdit.3ruGes",
+"r6pdjA.dHSYs" ,
+"r6pdjz.fkNfw" ,
+"r6pdmB.9rN7V" ,
+"r6pdmC.3Mc4Hn",
+"r6pdmH.1nDz9w",
+"r6pdmH.1SNIm6",
+"r6pdML.4sLrx" ,
+"r6pdML.R1XyW" ,
+"r6pdmM.2Is3UL",
+"r6pdmN.27FMTS",
+"r6pdNg.2ucRK5",
+"r6pdNh.4wiNCX",
+"r6pdNX.uS8hE" ,
+"r6pdNY.3ZBI8A",
+"r6pdO3.29BOsB",
+"r6pdO3.3fNynL",
+"r6pdO7.3kq0nv",
+"r6pdO7.MjKTr" ,
+"r6pdpd.3JMgtk",
+"r6pdpe.3pnCdU",
+"r6pdPu.1eNFMi",
+"r6pdPv.xsd17" ,
+"r6pdR7.kgbfa" ,
+"r6pdR8.4DpnyZ",
+"r6pdRe.2TwNN4",
+"r6pdRf.4wixza",
+"r6pdRs.3U8IIx",
+"r6pdRs.4Fy3Yf",
+"r6pdRz.2rOGSP",
+"r6pdRz.4CM4vh",
+"r6pdS8.1E90Ah",
+"r6pdS8.4ajIuB",
+"r6pdSZ.11aUim",
+"r6pdT0.5d7Zt" ,
+"r6pdTl.1gZkJS",
+"r6pdTl.2zSlrN",
+"r6pdTr.21C0Jo",
+"r6pdTs.2f7ZQs",
+"r6pdtZ.m9VaU" ,
+"r6pdtZ.X4e7j" ,
+"r6pdu5.1klb90",
+"r6pdu6.48ShbR",
+"r6pdU8.2CMl0G",
+"r6pdU9.1VBa7z",
+"r6pdvi.1hlgNk",
+"r6pdvi.2EHgbr",
+"r6pdvo.13PNdE",
+"r6pdvs.2X5jmD",
+"r6pdyA.1p23Cc",
+"r6pdyB.4BDVjM",
+"r6pdyg.1fSOFi",
+"r6pdyh.1PwcxW",
+"r6pdyq.1I9JIJ",
+"r6pdyq.24mxMd",
+"r6pebH.1QOhn9",
+"r6pebI.Prywo" ,
+"r6pebO.3q4BLp",
+"r6pebO.471mSd",
+"r6pef8.1xvyOh",
+"r6pefh.N7yGB" ,
+"r6pefr.4aYnvN",
+"r6pefs.2h5XoL",
+"r6peiK.ZCbYg" ,
+"r6peiL.1IfWoR",
+"r6pekP.3N2SgM",
+"r6pekQ.2cXFFJ",
+"r6peKW.1GxCED",
+"r6pekW.1S3Pma",
+"r6peKW.2v9U7X",
+"r6pekV.4CQNO9",
+"r6peL2.1qbyCp",
+"r6peL3.3g14S9",
+"r6peLi.4AEHU3",
+"r6peLj.2F71IE",
+"r6peMK.dCIVO" ,
+"r6peML.3fmJ3a",
+"r6penD.28lRKL",
+"r6penF.Y24hB" ,
+"r6penL.3pRAK0",
+"r6penM.1Y45vx",
+"r6peQd.kxoMi" ,
+"r6peQe.1iSrYX",
+"r6peR6.3UNjHd",
+"r6peR7.1bfgIL",
+"r6pesc.2BXuZt",
+"r6pesd.U72sn" ,
+"r6peuv.1ji9F4",
+"r6peuw.M1Mzt" ,
+"r6pevd.3SfYHD",
+"r6peve.DXNSb" ,
+"r6pevQ.2R9iwj",
+"r6pevR.3xLTqD",
+"r6peWS.30hjll",
+"r6peWS.439D4x",
+"r6pevW.ziicH" ,
+"r6pevX.E6E6t" ,
+"r6peWY.1ERxZg",
+"r6peWZ.3Qx6TC",
+"r6peX5.mwSkb" ,
+"r6peX6.37p9Vy",
+"r6peXc.1z8Gke",
+"r6peXd.4rvRNC",
+"r6peXj.1NkX0l",
+"r6peXj.z64pf" ,
+"r6peYq.2sDiQt",
+"r6peYr.3q0cL6",
+"r6peZa.3af9h8",
+"r6peZb.3j5Rfd",
+"r6pf3W.4lZm7a",
+"r6pf3V.rKPCX" ,
+"r6pf49.2idMlA",
+"r6pf49.335Ko4",
+"r6pf8S.4GyjFo",
+"r6pf8T.3Qg1l2",
+"r6pf9k.4GtaSC",
+"r6pf9l.2WTBdo",
+"r6pf9r.4ynNR" ,
+"r6pf9s.2NX66s",
+"r6pfbF.1YAU7Y",
+"r6pfbG.1bJI00",
+"r6pfbr.36TcmG",
+"r6pfbr.3HzECI",
+"r6pfbx.463ddU",
+"r6pfby.3NCSiZ",
+"r6pfc1.4cqgs6",
+"r6pfc2.214IBm",
+"r6pffN.41R4wp",
+"r6pffN.atYDW" ,
+"r6pffU.2oWf8U",
+"r6pffU.4Exn9y",
+"r6pffZ.1JrB8C",
+"r6pfg0.2IEWYu",
+"r6pfg7.1PD90r",
+"r6pfg7.3JpmFo",
+"r6pfgd.2vmMsq",
+"r6pfgd.kKEyS" ,
+"r6pfgj.1aguPU",
+"r6pfgj.I0QtA" ,
+"r6pfj9.2sgUeJ",
+"r6pfj9.sYaWO" ,
+"r6pfjI.31qrGW",
+"r6pfjJ.2D6Xe5",
+"r6pfjm.1nW9rn",
+"r6pfjm.2xXoUr",
+"r6pfjs.1iCqiD",
+"r6pfjs.39rVDB",
+"r6pfjy.1ryYCW",
+"r6pfjy.4FlXJ1",
+"r6pfkr.4keQyr",
+"r6pfks.2rZvwL",
+"r6pfkx.2cV6r1",
+"r6pfkx.5qbIr" ,
+"r6pJu9.4m6ATZ",
+"r6pJua.xc8M4" ,
+"r6pkG8.3nb0NG",
+"r6pkG9.1naspd",
+"r6pMFC.X2rHy" ,
+"r6pMFD.2G24E1",
+"r6pMIe.2wdaLx",
+"r6pMIf.41UVjq",
+"r6poDf.20dqQJ",
+"r6poDg.4v2maq",
+"r6poE5.2SmglN",
+"r6poE6.B6TUt" ,
+"r6poER.1augsL",
+"r6poES.49554R",
+"r6poJc.5t87e" ,
+"r6poJd.vBFvh" ,
+"r6poM7.4BJo9l",
+"r6poM8.biZRR" ,
+"r6poRZ.42NvsG",
+"r6poS0.29E1yd",
+"r6poZG.4DnQFN",
+"r6poZH.1F4YkS",
+"r6pvTF.1hZvhs",
+"r6pvTG.2NJC4H",
+"r6q5ak.21RNSb",
+"r6q5al.4zFNr" ,
+"r6q9FK.3qcLxF",
+"r6q9FL.3TLtlT",
+"r6q9Jr.2g0QsH",
+"r6q9Jr.4qSOjB",
+"r6q9Q9.1EjK8r",
+"r6q9Qa.2ardGj",
+"r6q9TB.lNqRF" ,
+"r6q9TC.1VgHvI",
+"r6q9Ti.3PZWE9",
+"r6q9Ti.kHHjd" ,
+"r6qa1d.4dZ4JT",
+"r6qa1e.1116vJ",
+"r6qaA4.3oU5rp",
+"r6qaA4.3oYU1W",
+"r6qag4.2HEnbr",
+"r6qag5.3ZQF8z",
+"r6qasw.2wfgDk",
+"r6qasx.1kM2hS",
+"r6qavL.QeHdi" ,
+"r6qavM.3cx4HY",
+"r6qbOR.3CvYbs",
+"r6qbOS.35GTbE",
+"r6qFA1.4kOBO6",
+"r6qFA3.2qBEXx",
+"r6qFgz.2d3wHR",
+"r6qFgz.4qypAB",
+"r6qFh5.11BSA0",
+"r6qFh6.JLaFL" ,
+"r6qFji.2TU6gN",
+"r6qFjj.1b6nDQ",
+"r6qFmA.2yEMaR",
+"r6qFmA.3mIVGb",
+"r6qgBL.3nb8mH",
+"r6qgBM.383kb2",
+"r6qgHM.41UZZ" ,
+"r6qgHN.32SfBU",
+"r6qgjD.2tFEsa",
+"r6qgjE.3TCXmf",
+"r6qGN6.uIjjP" ,
+"r6qGN8.2anpgm",
+"r6qgOg.3ll49i",
+"r6qgOh.1WwJTo",
+"r6qgsx.4fTPnB",
+"r6qgsy.4hwtKi",
+"r6qgWE.2giPdf",
+"r6qgWF.3yP50U",
+"r6qgvP.1A7BCh",
+"r6qgvQ.1bWA3q",
+"r6qh0r.1dxqle",
+"r6qh0s.1Pp7VS",
+"r6qh6i.1N5n32",
+"r6qh6k.4CfLkq",
+"r6qh9d.4E7a5E",
+"r6qh9e.3SVhr3",
+"r6qimx.rA20D" ,
+"r6qimz.2Ac8jM",
+"r6qMUT.2nYKMl",
+"r6qMUU.cIKPx" ,
+"r6qnFW.tv52P" ,
+"r6qnFX.2DaIMS",
+"r6qrQ1.1btBpO",
+"r6qrQ2.3t7qDv",
+"r6qrR5.1TDBJM",
+"r6qrR6.3LmfKe",
+"r6qrWu.3NcpXt",
+"r6qrWv.17P6lw",
+"r6qrYG.K4Ofc" ,
+"r6qrYH.3GEduP",
+"r6qS3s.411ipf",
+"r6qs5r.1tQYcD",
+"r6qs5s.DpVkI" ,
+"r6qsdL.357Fg3",
+"r6qsdM.MIo15" ,
+"r6qtqR.3mqFKo",
+"r6qtqS.3G071n",
+"r6qylH.2uKUtN",
+"r6qylI.44rPOQ",
+"r6qyM6.34PDyl",
+"r6qyM7.3U389l",
+"r6qzXW.3T72UM",
+"r6qzXY.2YPZXe"
+                                };
+
+            var notFoundId = new List<string>();
+
+            int itemCount = 0;
+            using (var repo = new LiteRepository($"Filename = {dbName}.db;Journal = false;async=true;Cache Size=0;Flush= true;Timeout=0:10:00;mode=Exclusive;"))
             {
-                repo.Database.Log.Level = Logger.FULL;
-                repo.Database.Log.Logging += (s) => Console.WriteLine(s);
-                var collection =
-                    repo.Database.GetCollection<MongoDbDataWrapper<string>>("DataObjects_1");
+                using (var reader = new System.IO.StreamReader(file))
+                {
+                    string line;
+                    while ((line = reader.ReadLine()) != null)
+                    {
 
-                //repo.Database.Shrink(); //This fixes the problem?
+                        var splits = line.Split(";");
+                        listOfIds.Add(splits[0]);
+                        var wrapper = new MongoDbDataWrapper<string>()
+                        {
+                            Id = splits[0],
+                            m = string.Empty,
+                            d = string.Join(string.Empty, splits.Skip(1))
+                        };
 
-                var o = collection.FindById("qyeyeW.1oMJK5");
-
-                Console.WriteLine();
-                Console.WriteLine(o == null ? "Nothing found" : "Found");
-                
-                Console.WriteLine();
-                Console.WriteLine("Press any key to continue...");
-                Console.ReadKey();
+                        var wrappedData = BsonMapper.Global.ToDocument(wrapper);
+                        
+                        var col = repo.Database.GetCollection("DataObjects");
+                        col.Insert(wrappedData);
+                        itemCount++;
+                    }
+                }
             }
+            
+            Console.WriteLine($"Item Count { itemCount}");
+            Thread.CurrentThread.CurrentCulture = new CultureInfo("en-gb");
+            Console.WriteLine($"Switch to with { Thread.CurrentThread.CurrentCulture.Name} culture");
+
+            using (var repo = new LiteRepository($"Filename = {dbName}.db;Journal = false;async=true;Cache Size=0;Flush= true;Timeout=0:10:00;mode=Exclusive;"))
+            {
+
+                foreach (var id in listOfIds)
+                {
+                    var col = repo.Database.GetCollection("DataObjects");
+                    var item = col.FindById(id);
+                    if (item == null)
+                    {
+                        notFoundId.Add(id);
+                    }
+                }
             }
-        }
+            
+            Console.WriteLine($"Missing item Count { notFoundId.Count}");
+            foreach (var notfound in notFoundId)
+            {
+                Console.WriteLine($"Item with id { notfound}  not found");
+            }
 
-        public class MongoDbDataWrapper<T>
-        {
-#pragma warning disable IDE1006 // Naming Styles
-
-            /// <summary>
-            /// Gets and sets the data object
-            /// </summary>
-            public T d { get; set; }
-
-
-            /// <summary>
-            /// Gets and sets the id of the data object (This is a primary key in MongoDB)
-            /// </summary>
-            public string Id { get; set; }
-
-
-            /// <summary>
-            /// Gets and sets the if of the meta data node that is associated with the data object
-            /// </summary>
-            public string m { get; set; }
-
-#pragma warning restore IDE1006 // Naming Styles
+            Console.WriteLine();
+            Console.WriteLine("Press any key to continue...");
+            Console.ReadKey();
         }
     }
+
+    public class MongoDbDataWrapper<T>
+    {
+#pragma warning disable IDE1006 // Naming Styles
+
+        /// <summary>
+        /// Gets and sets the data object
+        /// </summary>
+        public T d { get; set; }
+
+
+        /// <summary>
+        /// Gets and sets the id of the data object (This is a primary key in MongoDB)
+        /// </summary>
+        public string Id { get; set; }
+
+
+        /// <summary>
+        /// Gets and sets the if of the meta data node that is associated with the data object
+        /// </summary>
+        public string m { get; set; }
+
+#pragma warning restore IDE1006 // Naming Styles
+    }
+}

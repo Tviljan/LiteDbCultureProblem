@@ -6,23 +6,28 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="AddItem.txt" />
     <None Remove="Bug66245_min.db" />
+    <None Remove="output.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="AddItem.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>
     <Content Include="Bug66245_min.db">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="output.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="LiteDB" Version="4.1.4" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="Bug66245.db">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 
 </Project>
